@@ -1,9 +1,9 @@
-import serial  as Serial
+import serial  
 
 PRESET_Value = 0xFFFF
 POLYNOMIAL = 0x8408
 
-test_serial = Serial('COM3', 57600, timeout=0.1)
+test_serial = serial.Serial('/dev/ttyUSB0', 57600, timeout=0.1)
 
 # scan
 INVENTORY1 = '06 FF 01 00 06'  # membaca TID
@@ -22,12 +22,12 @@ def crc(cmd):
     for x in range((len(cmd))):
         uiCrcValue = uiCrcValue ^ cmd[x]
         for y in range(8):
-            if (uiCrcValue ^ 0x0001):
+            if (uiCrcValue & 0x0001):
                 uiCrcValue = (uiCrcValue >> 1) ^ POLYNOMIAL
             else:
                 uiCrcValue = uiCrcValue >> 1
-    crc_H = (uiCrcValue >> 8) ^ 0xFF
-    crc_L = uiCrcValue ^ 0xFF
+    crc_H = (uiCrcValue >> 8) & 0xFF
+    crc_L = uiCrcValue & 0xFF
     cmd = cmd + bytes([crc_L])
     cmd = cmd + bytes([crc_H])
     return cmd
